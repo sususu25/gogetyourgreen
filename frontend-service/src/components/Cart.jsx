@@ -7,21 +7,26 @@ const Cart = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch('http://localhost:3002/orders')
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return res.json();
-            })
-            .then(data => {
-                setOrders(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                setError(err.message);
-                setLoading(false);
-            });
+        const fetchOrders = () => {
+            setLoading(true);
+            fetch('/orders')
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    setOrders(data);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    setError(err.message);
+                    setLoading(false);
+                });
+        };
+
+        fetchOrders();
     }, []);
 
     if (loading) return <div className="cart-container"><p>Loading your cart...</p></div>;
@@ -30,22 +35,21 @@ const Cart = () => {
     const totalPrice = orders.reduce((total, order) => total + (parseFloat(order.price) * order.quantity), 0);
 
     const handleDelete = (orderId) => {
-        // Optimistically remove the item from the UI
-        setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
-
-        fetch(`http://localhost:3002/orders/${orderId}`, {
-            method: 'DELETE',
-        })
-        .then(response => {
-            if (!response.ok && response.status !== 204) {
-                console.error('Failed to delete order from server.');
-                // Optionally, re-fetch orders to sync with the server state in case of an error
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting order:', error);
-            // Handle error, e.g., show a notification and re-fetch to restore the item
-        });
+        if (window.confirm('Are you sure you want to remove this item from the cart?')) {
+            fetch(`/orders/${orderId}`, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (!response.ok && response.status !== 204) {
+                        console.error('Failed to delete order from server.');
+                        // Optionally, re-fetch orders to sync with the server state in case of an error
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting order:', error);
+                    // Handle error, e.g., show a notification and re-fetch to restore the item
+                });
+        }
     };
 
     return (

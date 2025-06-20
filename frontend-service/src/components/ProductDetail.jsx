@@ -5,7 +5,7 @@ const ProductDetail = ({ product, onBackToList }) => {
     const handleAddToCart = () => {
         console.log('Adding to cart from detail:', product);
 
-        fetch('http://localhost:3002/orders', {
+        fetch('/orders', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

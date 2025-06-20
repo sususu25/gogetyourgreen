@@ -1,20 +1,19 @@
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const cors = require('cors');
 
 const app = express();
 const port = 3000;
 
-// Proxy requests for /products to the product-service
-app.use('/products', createProxyMiddleware({ 
-    target: 'http://localhost:3001', 
-    changeOrigin: true,
-    pathRewrite: {
-        '^/products': '/', // rewrite path
-    },
-}));
+const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://products:3001';
+const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://orders:3002';
 
-// Add other services here
-// app.use('/orders', createProxyMiddleware({ target: 'http://localhost:3003', changeOrigin: true }));
+app.use(cors());
+app.use(express.json());
+
+// Proxy endpoints
+app.use('/products', createProxyMiddleware({ target: PRODUCT_SERVICE_URL, changeOrigin: true }));
+app.use('/orders', createProxyMiddleware({ target: ORDER_SERVICE_URL, changeOrigin: true }));
 
 app.listen(port, () => {
     console.log(`API Gateway listening at http://localhost:${port}`);

@@ -1,16 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './ProductList.css';
 
-const ProductList = ({ products, onProductSelect }) => {
-  if (!products || products.length === 0) {
-    return <p>No products available.</p>;
-  }
+const ProductList = ({ onProductSelect }) => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    // Fetch products from the backend
+    fetch('/products')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setProducts(data);
+      })
+      .catch(error => {
+        console.error('Error fetching products:', error);
+      });
+  }, []);
 
   const handleAddToCart = (e, product) => {
     e.stopPropagation(); // Prevent the card's onClick from firing
-    console.log('Adding to cart:', product);
+    console.log('Adding to cart from list:', product);
 
-    fetch('http://localhost:3002/orders', {
+    // Make a POST request to the order service
+    fetch('/orders', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
