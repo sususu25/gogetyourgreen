@@ -33,14 +33,16 @@ const ProductDetail = ({ product, onBackToList }) => {
     }
 
     return (
-        <div className="product-detail">
-            <button onClick={onBackToList} className="back-button">← Back to List</button>
-            <div className="detail-content">
-                <img src={product.image} alt={product.name} />
-                <div className="product-info">
-                    <h2>{product.name}</h2>
-                    <p className="price">${product.price}</p>
-                    <p className="description">{product.description}</p>
+        <div className="product-detail-card">
+            <button onClick={onBackToList} className="back-to-products-btn">← Back to List</button>
+            <div className="product-detail-image-container">
+                <img src={product.image} alt={product.name} className="product-detail-image"/>
+            </div>
+            <div className="product-detail-info">
+                <h2 className="product-detail-name">{product.name}</h2>
+                <p className="product-detail-price">${product.price.toFixed(2)} USD</p>
+                <p className="product-detail-description">{product.description}</p>
+                <div className="product-detail-actions">
                     <button className="add-to-cart-btn" onClick={handleAddToCart}>ADD TO CART</button>
                 </div>
             </div>

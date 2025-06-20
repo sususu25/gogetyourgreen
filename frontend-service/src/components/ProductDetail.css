@@ -7,7 +7,9 @@
 }
 
 .product-detail-card {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
   max-width: 1000px;
   width: 100%;
   background: white;
@@ -17,6 +19,7 @@
 }
 
 .product-detail-image-container {
+  grid-row: 2;
   flex: 1;
 }
 
@@ -79,9 +82,18 @@
 }
 
 .back-to-products-btn {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin: 1rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
   background-color: #f1f1f1;
   color: #333;
-  border: 1px solid #ddd;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
 }
 
 .back-to-products-btn:hover {
