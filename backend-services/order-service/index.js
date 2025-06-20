@@ -86,6 +86,22 @@ app.post('/orders', async (req, res) => {
     }
 });
 
+// Endpoint to delete an order
+app.delete('/orders/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [result] = await pool.query('DELETE FROM orders WHERE id = ?', [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).send('Order not found');
+        }
+        console.log(`Order with id ${id} deleted successfully.`);
+        res.status(204).send(); // 204 No Content signifies success but no content to return
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        res.status(500).send('Error deleting order');
+    }
+});
+
 app.listen(port, () => {
     console.log(`Order service listening at http://localhost:${port}`);
     initDb();

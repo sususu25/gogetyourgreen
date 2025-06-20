@@ -1,19 +1,22 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Header.css';
 
-function Header() {
+const Header = () => {
     return (
         <header className="header solid">
-            <div className="logo">GoGetYourGreen</div>
+            <div className="logo">
+                <Link to="/">GoGetYourGreen</Link>
+            </div>
             <nav>
                 <ul className="nav-links">
-                    <li><a href="#">My Page</a></li>
-                    <li><a href="#">Cart</a></li>
-                    <li><a href="#">Login</a></li>
+                    <li><Link to="/my-page">My Page</Link></li>
+                    <li><Link to="/cart">Cart</Link></li>
+                    <li><Link to="/login">Login</Link></li>
                 </ul>
             </nav>
         </header>
     );
-}
+};
 
 export default Header; 

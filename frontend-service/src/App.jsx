@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import MainContent from './components/MainContent';
 import Hero from './components/Hero';
+import Cart from './components/Cart';
 import './App.css';
 
 function App() {
@@ -39,19 +41,24 @@ function App() {
   return (
     <div className="app">
       <Header />
-      {showHero ? (
-        <Hero onExplore={handleExplore} />
-      ) : (
-        <div className="container">
-          <Sidebar />
-          <MainContent 
-            products={products} 
-            selectedProduct={selectedProduct} 
-            onProductSelect={handleProductSelect}
-            onBackToList={handleBackToList}
-          />
-        </div>
-      )}
+      <Routes>
+        <Route path="/" element={
+          showHero ? (
+            <Hero onExplore={handleExplore} />
+          ) : (
+            <div className="container">
+              <Sidebar />
+              <MainContent 
+                products={products} 
+                selectedProduct={selectedProduct} 
+                onProductSelect={handleProductSelect}
+                onBackToList={handleBackToList}
+              />
+            </div>
+          )
+        } />
+        <Route path="/cart" element={<Cart />} />
+      </Routes>
     </div>
   );
 }
