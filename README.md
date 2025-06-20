@@ -23,210 +23,100 @@
 | `order-service`       | Node.js, Express, MySQL | 3002            | 주문 생성, 조회, 삭제 기능을 담당하는 API 서버입니다. MySQL 데이터베이스에 주문 내역을 저장하고 관리합니다.                                                        |
 | `mysqldb`             | MySQL 8.0              | 3306            | 주문 데이터를 저장하는 관계형 데이터베이스입니다. Docker의 영구 볼륨(persistent volume)을 사용하여 컨테이너가 재시작되어도 데이터가 유지됩니다.                            |
 
-## 3. 로컬 환경에서 실행하기 (Local Development)
+## 3. Amazon EKS 배포 가이드 (EKS Deployment)
 
-### 사전 준비 사항
+이 애플리케이션을 AWS의 관리형 Kubernetes 서비스인 EKS에 배포하는 과정은 다음과 같습니다. `Kustomize`를 사용하여 설정을 편리하게 관리합니다.
 
--   [Docker Desktop](https://www.docker.com/products/docker-desktop/) 설치 및 실행
+### 1단계: 사전 준비 사항
 
-### 실행 방법
+-   [AWS CLI](https://aws.amazon.com/cli/) 설치 및 설정 완료
+-   [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) 설치 완료
+-   EKS 클러스터에 연결 완료 (`aws eks update-kubeconfig ...`)
+-   EKS 클러스터에 [AWS Load Balancer Controller](https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html) 애드온 설치 완료
+-   애플리케이션 컨테이너 이미지를 저장할 [Amazon ECR](https://aws.amazon.com/ecr/) 리포지토리 4개 생성 완료 (예: `gogetyourgreen-frontend`, `gogetyourgreen-api-gateway` 등)
+-   데이터베이스로 사용할 [Amazon RDS](https://aws.amazon.com/rds/) (MySQL) 인스턴스 생성 완료
 
-1.  **환경 변수 파일 설정**
+### 2단계: 컨테이너 이미지 빌드 및 ECR에 푸시
 
-    프로젝트의 최상위 루트 디렉터리에 있는 `.env.example` 파일을 복사하여 `.env` 파일을 생성합니다. 이 파일은 `docker-compose`가 데이터베이스 컨테이너를 설정하는 데 사용됩니다.
+로컬 시스템에 있는 각 서비스의 소스 코드를 Docker 이미지로 빌드하여 ECR에 푸시합니다.
 
-    ```bash
-    cp .env.example .env
-    ```
-
-    `.env` 파일의 내용은 다음과 같습니다. 로컬 개발 환경에서는 기본값을 그대로 사용해도 무방합니다.
-
-    ```
-    # .env
-    DB_USER=root
-    DB_PASSWORD=rootpassword
-    DB_NAME=gogetyourgreen
-    ```
-
-    > **참고**: `.env` 파일은 민감한 정보를 담고 있으므로 `.gitignore`에 의해 Git 추적에서 제외됩니다.
-
-2.  **Docker Compose 실행**
-
-    프로젝트의 최상위 루트 디렉터리에서 아래 명령어를 실행합니다. 이 명령어는 모든 서비스의 Docker 이미지를 빌드하고 컨테이너를 실행시킵니다. 처음 실행 시에는 의존성 설치 등으로 인해 시간이 다소 소요될 수 있습니다.
-
-    ```bash
-    docker-compose up --build
-    ```
-
-3.  **애플리케이션 접속**
-
-    모든 컨테이너가 성공적으로 실행되면, 웹 브라우저에서 `http://localhost:8080` 주소로 접속하여 애플리케이션을 확인할 수 있습니다.
-
-4.  **서비스 종료**
-
-    터미널에서 `Ctrl + C`를 누른 후, 아래 명령어를 실행하여 모든 컨테이너와 네트워크를 깔끔하게 종료합니다.
-
-    ```bash
-    docker-compose down
-    ```
-
-### 사용자가 변경해야 할 사항
-
--   **데이터베이스**: 로컬 MySQL 비밀번호 등을 변경하고 싶다면, 최상위 루트의 `.env` 파일 값을 수정하면 됩니다.
--   **MySQL 포트 충돌**: 만약 로컬 PC에 이미 3306 포트를 사용하는 MySQL이 설치되어 있다면, `docker-compose.yml` 파일에서 `mysqldb` 서비스의 포트 매핑을 ` "3307:3306" ` 과 같이 다른 포트로 변경하여 충돌을 피할 수 있습니다. (현재 이미 `3307`로 설정되어 있습니다.)
-
-## 4. Amazon EKS 배포 가이드 (EKS Deployment)
-
-이 애플리케이션을 AWS의 관리형 Kubernetes 서비스인 EKS에 배포하는 과정은 다음과 같습니다.
-
-### 1단계: 컨테이너 이미지 빌드 및 ECR에 푸시
-
-각 서비스(`frontend-service`, `api-gateway`, `product-service`, `order-service`)의 이미지를 빌드하고, AWS의 Private Container Registry인 ECR에 푸시해야 합니다.
-
-각 서비스 디렉터리에서 아래와 유사한 명령어를 실행합니다. (`<ACCOUNT_ID>`, `<REGION>`, `<REPO_NAME>`은 실제 값으로 대체해야 합니다.)
+`<ACCOUNT_ID>`, `<REGION>`, `<REPO_NAME>`, `<TAG>`는 실제 환경에 맞게 변경해야 합니다.
 
 ```bash
+# 각 서비스 디렉터리로 이동합니다. 예시는 frontend-service 입니다.
+cd frontend-service
+
 # 1. ECR 로그인
 aws ecr get-login-password --region <REGION> | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com
 
 # 2. Docker 이미지 빌드
-docker build -t <REPO_NAME> .
+docker build -t <REPO_NAME>:<TAG> .
 
 # 3. ECR 리포지토리 주소로 태그 지정
-docker tag <REPO_NAME>:latest <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/<REPO_NAME>:latest
+docker tag <REPO_NAME>:<TAG> <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/<REPO_NAME>:<TAG>
 
 # 4. ECR로 푸시
-docker push <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/<REPO_NAME>:latest
+docker push <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/<REPO_NAME>:<TAG>
+
+# 5. 다른 서비스(api-gateway, product-service, order-service)에 대해서도 위 과정을 반복합니다.
 ```
 
-### 2단계: 데이터베이스를 Amazon RDS로 이전
+### 3단계: Kubernetes 설정 수정
 
-프로덕션 환경에서는 컨테이너로 DB를 직접 운영하는 대신, 관리형 데이터베이스 서비스인 Amazon RDS를 사용하는 것이 안정성과 확장성 면에서 권장됩니다.
+`k8s/kustomization.yaml` 파일을 열어 `images` 섹션을 실제 ECR 리포지토리 정보로 수정합니다. `newTag`에는 2단계에서 푸시한 이미지의 태그를 정확히 기입합니다.
 
-1.  MySQL용 Amazon RDS 인스턴스를 생성합니다.
-2.  RDS의 보안 그룹(Security Group)을 설정하여, EKS 클러스터의 워커 노드(Worker Node)들이 RDS의 3306 포트로 접근할 수 있도록 허용합니다.
-
-### 3단계: Kubernetes Manifest 작성 및 배포
-
-아래 예시와 같은 Kubernetes 설정 파일(`.yaml`)들을 작성하여 클러스터에 배포합니다.
-
-#### 1. 데이터베이스 접속 정보 (Secret)
-
-RDS 접속 정보를 `Secret`으로 만들어 안전하게 관리합니다. `stringData` 안의 값들을 실제 RDS 정보로 채워야 합니다.
-
-`k8s/db-secret.yaml`:
+`k8s/kustomization.yaml` 수정 예시:
 ```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: db-secret
-type: Opaque
-stringData:
-  DB_HOST: <your-rds-endpoint>
-  DB_USER: <your-rds-username>
-  DB_PASSWORD: <your-rds-password>
-  DB_NAME: gogetyourgreen
+# ...
+images:
+  - name: <ECR_IMAGE_URI_FOR_API_GATEWAY>
+    newName: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/gogetyourgreen-api-gateway
+    newTag: v1.1.0
+  - name: <ECR_IMAGE_URI_FOR_FRONTEND>
+    newName: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/gogetyourgreen-frontend
+    newTag: v1.1.0
+  # ... 나머지 서비스도 동일하게 수정 ...
 ```
 
-#### 2. 배포 (Deployment) 및 서비스 (Service)
+### 4단계: Kubernetes 배포
 
-각 마이크로서비스에 대해 `Deployment`와 `Service`를 정의합니다. 아래는 `order-service`의 예시이며, 다른 서비스들도 유사하게 작성할 수 있습니다. `spec.template.spec.containers.image` 필드에는 1단계에서 푸시한 ECR 이미지 주소를 넣어야 합니다.
+1.  **데이터베이스 접속 정보 생성 (최초 1회)**
 
-`k8s/order-service.yaml`:
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: order-service-deployment
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: order-service
-  template:
+    RDS 접속 정보를 담은 Kubernetes Secret을 생성합니다. 아래 내용을 담은 `db-secret.yaml` 파일을 임시로 생성한 후, `< >` 안의 값들을 실제 RDS 정보로 채워 실행하고 파일을 삭제하는 것을 권장합니다.
+
+    `db-secret.yaml`:
+    ```yaml
+    apiVersion: v1
+    kind: Secret
     metadata:
-      labels:
-        app: order-service
-    spec:
-      containers:
-      - name: order-service
-        image: <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/order-service:latest
-        ports:
-        - containerPort: 3002
-        envFrom:
-        - secretRef:
-            name: db-secret
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: order-service
-spec:
-  selector:
-    app: order-service
-  ports:
-  - protocol: TCP
-    port: 3002
-    targetPort: 3002
-```
+      name: db-secret
+    type: Opaque
+    stringData:
+      DB_HOST: <your-rds-endpoint>
+      DB_USER: <your-rds-username>
+      DB_PASSWORD: <your-rds-password>
+      DB_NAME: gogetyourgreen
+    ```
 
-#### 3. 인그레스 (Ingress)
+    ```bash
+    kubectl apply -f db-secret.yaml
+    ```
 
-외부 트래픽을 클러스터 내부의 `api-gateway`로 전달하기 위해 `Ingress`를 설정합니다. EKS 클러스터에 [AWS Load Balancer Controller](https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html)가 미리 설치되어 있어야 합니다.
+2.  **애플리케이션 배포**
 
-`k8s/ingress.yaml`:
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: gogetyourgreen-ingress
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-spec:
-  ingressClassName: alb
-  rules:
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-service
-            port:
-              number: 80
-      - path: /products
-        pathType: Prefix
-        backend:
-          service:
-            name: api-gateway-service
-            port:
-              number: 3000
-      - path: /orders
-        pathType: Prefix
-        backend:
-          service:
-            name: api-gateway-service
-            port:
-              number: 3000
-```
+    `k8s` 디렉터리에서 아래 `kustomize` 명령어를 실행하면, `kustomization.yaml`에 정의된 모든 리소스가 수정된 이미지 태그와 함께 클러스터에 배포됩니다.
 
-#### 4. 배포 명령어
+    ```bash
+    cd k8s
+    kubectl apply -k .
+    ```
 
-작성한 YAML 파일들을 `kubectl`을 사용하여 클러스터에 적용합니다.
+3.  **배포 확인 및 접속**
 
-```bash
-# Secret 배포
-kubectl apply -f k8s/db-secret.yaml
+    배포가 완료되면 Ingress가 생성한 외부 로드 밸런서의 주소로 접속하여 애플리케이션을 확인할 수 있습니다.
 
-# 각 서비스 배포
-kubectl apply -f k8s/product-service.yaml
-kubectl apply -f k8s/order-service.yaml
-kubectl apply -f k8s/api-gateway.yaml
-kubectl apply -f k8s/frontend-service.yaml
+    ```bash
+    kubectl get ingress gogetyourgreen-ingress
+    ```
 
-# Ingress 배포
-kubectl apply -f k8s/ingress.yaml
-```
-
-이 가이드를 통해 팀원들이 프로젝트를 이해하고 배포하는 데 도움이 되기를 바랍니다.
+이 가이드를 통해 팀원들이 프로젝트를 이해하고 EKS에 보다 쉽게 배포하는 데 도움이 되기를 바랍니다.
