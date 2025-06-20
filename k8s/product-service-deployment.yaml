@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: product-service
-        image: <ECR_IMAGE_URI_FOR_PRODUCT_SERVICE> # ECR에 푸시한 이미지 주소로 변경해야 합니다.
+        image: gogetyourgreen-product-service # Kustomize가 이 이름을 sususu25/product-service:latest로 바꿉니다.
         ports:
         - containerPort: 3001
 ---

@@ -3,24 +3,24 @@ kind: Kustomization
 
 # 배포에 포함할 리소스 파일들을 지정합니다.
 resources:
-  - api-gateway-deployment.yaml
   - frontend-deployment.yaml
-  - order-service-deployment.yaml
+  - api-gateway-deployment.yaml
   - product-service-deployment.yaml
+  - order-service-deployment.yaml
   - ingress.yaml
 
 # 이미지 정보를 한 곳에서 관리합니다.
 # 팀원은 이 부분의 newName과 newTag만 수정하면 됩니다.
 images:
-  - name: <ECR_IMAGE_URI_FOR_API_GATEWAY>
-    newName: <YOUR_ACCOUNT_ID>.dkr.ecr.<YOUR_REGION>.amazonaws.com/gogetyourgreen-api-gateway
-    newTag: latest # 또는 특정 버전 태그 (e.g., v1.0.0)
-  - name: <ECR_IMAGE_URI_FOR_FRONTEND>
-    newName: <YOUR_ACCOUNT_ID>.dkr.ecr.<YOUR_REGION>.amazonaws.com/gogetyourgreen-frontend
+  - name: gogetyourgreen-frontend
+    newName: sususu25/frontend-service
     newTag: latest
-  - name: <ECR_IMAGE_URI_FOR_ORDER_SERVICE>
-    newName: <YOUR_ACCOUNT_ID>.dkr.ecr.<YOUR_REGION>.amazonaws.com/gogetyourgreen-order-service
+  - name: gogetyourgreen-api-gateway
+    newName: sususu25/api-gateway
     newTag: latest
-  - name: <ECR_IMAGE_URI_FOR_PRODUCT_SERVICE>
-    newName: <YOUR_ACCOUNT_ID>.dkr.ecr.<YOUR_REGION>.amazonaws.com/gogetyourgreen-product-service
+  - name: gogetyourgreen-product-service
+    newName: sususu25/product-service
+    newTag: latest
+  - name: gogetyourgreen-order-service
+    newName: sususu25/order-service
     newTag: latest 
