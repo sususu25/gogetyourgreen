@@ -2,10 +2,10 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY backend-services/order-service/package*.json ./
 RUN npm install
 
-COPY . .
+COPY backend-services/order-service/. .
 
 EXPOSE 3002
 
