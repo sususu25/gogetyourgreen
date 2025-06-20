@@ -1,2 +1,2 @@
 # gogetyourgreen
-demo app for testing meshmanager svc
+msa demo app for testing meshmanager svc
