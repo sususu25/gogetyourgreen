@@ -36,7 +36,7 @@ const ProductList = ({ products, onProductSelect }) => {
   return (
     <div className="product-list-container">
       <div className="list-header">
-        <h2>New Arrivals</h2>
+        <h2>New Arrivals 신제품</h2>
         <button className="shop-all-btn">SHOP ALL</button>
       </div>
       <div className="product-list">
