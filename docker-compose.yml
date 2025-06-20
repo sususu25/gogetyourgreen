@@ -34,19 +34,26 @@ services:
     ports:
       - "3002:3002"
     environment:
-      - DB_HOST=your-rds-endpoint.amazonaws.com
-      - DB_USER=your-rds-username
-      - DB_PASSWORD=your-rds-password
-      - DB_NAME=gogetyourgreen
+      - DB_HOST=mysqldb
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
     depends_on:
-      - mysqldb
+      mysqldb:
+        condition: service_healthy
 
   mysqldb:
     image: mysql:8.0
     restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "${DB_USER}", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: gogetyourgreen
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
     ports:
       - "3306:3306"
     volumes:
