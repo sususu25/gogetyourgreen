@@ -17,6 +17,9 @@ spec:
         image: gogetyourgreen-order-service # Kustomize가 이 이름을 sususu25/order-service:latest로 바꿉니다.
         ports:
         - containerPort: 3002
+        env:
+        - name: DB_HOST
+          value: "mysqldb"
         envFrom:
         - secretRef:
             name: db-secret
