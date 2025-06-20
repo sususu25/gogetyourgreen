@@ -1,0 +1,62 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 50px;
+  height: 80px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2F4858;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: #a2ff86; /* A light green for hover effect */
+}
+
+/* Styles for the solid header on content pages */
+.header.solid {
+  /* position: fixed is inherited */
+  background-color: #ffffff; /* White background */
+  color: #333333; /* Dark text */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header.solid .nav-links a {
+  color: #333333;
+}
+
+.header.solid .nav-links a:hover {
+  color: #4CAF50; /* Green hover for links */
+}
+
+.header .logo a {
+  color: #2F4858;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+} 
