@@ -13,14 +13,14 @@ resources:
 # 팀원은 이 부분의 newName과 newTag만 수정하면 됩니다.
 images:
   - name: gogetyourgreen-frontend
-    newName: sususu25/frontend-service
-    newTag: latest
+    newName: sususu25/gogetyourgreen-frontend
+    newTag: v1
   - name: gogetyourgreen-api-gateway
     newName: sususu25/api-gateway
     newTag: latest
   - name: gogetyourgreen-product-service
-    newName: sususu25/product-service
-    newTag: latest
+    newName: sususu25/gogetyourgreen-product
+    newTag: v1
   - name: gogetyourgreen-order-service
     newName: sususu25/order-service
     newTag: latest 

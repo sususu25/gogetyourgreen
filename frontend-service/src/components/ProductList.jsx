@@ -49,20 +49,20 @@ const ProductList = ({ onProductSelect }) => {
       });
   };
 
-  return (
+    return (
     <div className="product-list-container">
       <div className="list-header">
         <h2>New Arrivals 신제품</h2>
         <button className="shop-all-btn">SHOP ALL</button>
       </div>
-      <div className="product-list">
-        {products.map(product => (
+        <div className="product-list">
+            {products.map(product => (
           <div key={product.id} className="product-item" onClick={() => onProductSelect(product)}>
             <div className="product-image-container">
-              <img src={product.image} alt={product.name} />
+                    <img src={product.image} alt={product.name} />
             </div>
             <div className="product-info">
-              <h3>{product.name}</h3>
+                    <h3>{product.name}</h3>
               <p>${product.price.toFixed(2)} USD</p>
               <div className="product-buttons">
                 <button className="view-product-button">
@@ -73,11 +73,11 @@ const ProductList = ({ onProductSelect }) => {
                 </button>
               </div>
             </div>
-          </div>
-        ))}
+                </div>
+            ))}
       </div>
-    </div>
-  );
+        </div>
+    );
 };
 
 export default ProductList; 

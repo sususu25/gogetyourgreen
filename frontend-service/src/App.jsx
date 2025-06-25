@@ -44,17 +44,17 @@ function App() {
       <Routes>
         <Route path="/" element={
           showHero ? (
-            <Hero onExplore={handleExplore} />
-          ) : (
-            <div className="container">
-              <Sidebar />
-              <MainContent 
-                products={products} 
-                selectedProduct={selectedProduct} 
-                onProductSelect={handleProductSelect}
-                onBackToList={handleBackToList}
-              />
-            </div>
+        <Hero onExplore={handleExplore} />
+      ) : (
+        <div className="container">
+          <Sidebar />
+          <MainContent 
+            products={products} 
+            selectedProduct={selectedProduct} 
+            onProductSelect={handleProductSelect}
+            onBackToList={handleBackToList}
+          />
+        </div>
           )
         } />
         <Route path="/cart" element={<Cart />} />
