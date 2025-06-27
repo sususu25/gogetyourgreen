@@ -6,7 +6,7 @@ const ProductList = ({ onProductSelect }) => {
 
   useEffect(() => {
     // Fetch products from the backend
-    fetch('a7212b7bde52c49b9ae8729d3770d18d-1901544087.ap-northeast-2.elb.amazonaws.com/products')
+    fetch('/products')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');

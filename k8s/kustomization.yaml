@@ -14,7 +14,7 @@ resources:
 images:
   - name: gogetyourgreen-frontend
     newName: sususu25/gogetyourgreen-frontend
-    newTag: v1
+    newTag: v7
   - name: gogetyourgreen-api-gateway
     newName: sususu25/api-gateway
     newTag: latest
@@ -23,4 +23,4 @@ images:
     newTag: v1
   - name: gogetyourgreen-order-service
     newName: sususu25/order-service
-    newTag: latest 
+    newTag: v2 

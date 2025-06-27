@@ -14,7 +14,7 @@ function App() {
 
   useEffect(() => {
     if (!showHero) {
-      fetch('http://localhost:3001/products')
+      fetch('/products')
         .then(response => {
           if (!response.ok) {
             throw new Error('Network response was not ok');

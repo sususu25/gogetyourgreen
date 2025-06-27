@@ -28,7 +28,6 @@ kind: Service
 metadata:
   name: api-gateway-service
 spec:
-  type: LoadBalance
   selector:
     app: api-gateway
   ports:

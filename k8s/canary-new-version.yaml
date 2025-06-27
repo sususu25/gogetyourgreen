@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deploymentv2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: sususu25/gogetyourgreen-frontend:v2-canary
+        ports:
+        - containerPort: 80
+
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service-deploymentv2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+      - name: product-service
+        image: sususu25/gogetyourgreen-product:v2-canary
+        ports:
+        - containerPort: 3001
